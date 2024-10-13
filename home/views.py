@@ -9,6 +9,9 @@ def home(request):
 def host(request):
     return HttpResponse('<h1>This home page is for Host</h1>')
 
+def participant(request):
+    return HttpResponse('<h1> This is Participants Home Page</h1>')
+
 def qr_validation(request):
     return render(request,'qr_validation.html')
 
@@ -21,8 +24,6 @@ def check_qr_code(request):
         return HttpResponse(result)
     return HttpResponse('Something went wrong...')
 
-def participant(request):
-    return HttpResponse('<h1> This is Participants Home Page</h1>')
 
 def form(request):
     return render(request,'index.html')
