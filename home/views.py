@@ -4,7 +4,7 @@ from home import check_qr, login
 # Create your views here.
 
 def home(request):
-    return HttpResponse('<h1>This is Home Page...</h1>')
+    return HttpResponse('<h1>This is landing  Page...</h1>')
 
 def host(request):
     return HttpResponse('<h1>This home page is for Host</h1>')
