@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <button id="startButton">Start Camera</button>
+    <video id="preview" width="400" height="300" style="display: none;"></video>
+    <p id="result"></p>
+
+    <script>
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        const startButton = document.getElementById('startButton');
+        const videoElement = document.getElementById('preview');
+        const resultElement = document.getElementById('result');
+
+        startButton.addEventListener('click', () => {
+            codeReader.decodeOnceFromVideoDevice(undefined, videoElement)
+                .then(result => {
+                    console.log(result);
+                    resultElement.textContent = `QR Code: ${result.text}`;
+                    videoElement.style.display = 'none';  
+                    sendDataToBackend(result.text);
+                })
+                .catch(err => {
+                    console.error(err);
+                    resultElement.textContent = "Error scanning QR Code.";
+                });
+            
+            videoElement.style.display = 'block'; 
+        });
+
+
+        function sendDataToBackend(data) {
+            fetch('/api/qrcodescans/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ scanned_data: data }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+        
+    </script>
+</body>
+</html>
