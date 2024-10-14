@@ -5,7 +5,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 from_add="jeeshaninamdar7@gmail.com"
-key="Apna banake ke use karoo"
+key="kpnj skqq smom cidd"
 
 def sendingemail(to_add):
     # instance of MIMEMultipart
