@@ -1,4 +1,4 @@
-from participants import qrcode,send_email,create
+from home import qrcode,send_email,create
 
 def login(name,email,ph_no):
 

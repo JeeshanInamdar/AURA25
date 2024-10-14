@@ -1,5 +1,4 @@
-from participants import create
-from hosts import Event_entry
+from home import create, Event_entry
 
 
 def check(code):
