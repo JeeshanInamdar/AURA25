@@ -3,84 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Info Form</title>
+    <title>QR Code Scanner</title>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 0;
+        #preview {
+            display: none;
+            margin-top: 10px;
         }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
+        #result {
+            margin-top: 10px;
             font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #218838;
-        }
-
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-top: -10px;
-            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
+    <h1>QR Code Scanner</h1>
+    <button id="startButton">Start Camera</button>
+    <button id="stopButton" style="display:none;">Stop Camera</button>
+    <video id="preview" width="400" height="300"></video>
+    <p id="result"></p>
 
-<div class="container">
-    <h1>QR Validation Form</h1>
-    <form method="POST" action="{% url 'check_qr_code' %}">
-        {% csrf_token %}
-        <label for="qr">QR:</label>
-        <input type="text" id="qr" name="qr" placeholder="Enter your QR code" required>
+    <script>
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const videoElement = document.getElementById('preview');
+        const resultElement = document.getElementById('result');
+        let selectedDeviceId;
 
+        startButton.addEventListener('click', async () => {
+            // Get the available video input devices (cameras)
+            try {
+                const devices = await codeReader.listVideoInputDevices();
+                if (devices.length > 0) {
+                    selectedDeviceId = devices[0].deviceId; // Use the first camera found
+                    startScan();
+                } else {
+                    resultElement.textContent = "No camera devices found.";
+                }
+            } catch (err) {
+                console.error("Error listing video devices:", err);
+                resultElement.textContent = "Error accessing camera devices.";
+            }
+        });
 
+        stopButton.addEventListener('click', () => {
+            stopScan();
+        });
 
-        <input type="submit" value="Submit">
-    </form>
-</div>
+        function startScan() {
+            resultElement.textContent = "Starting camera...";
+            videoElement.style.display = 'block';
+            stopButton.style.display = 'inline';
 
+            codeReader.decodeOnceFromVideoDevice(selectedDeviceId, videoElement)
+                .then(result => {
+                    console.log(result);
+                    resultElement.textContent = `QR Code: ${result.text}`;
+                    stopScan(); // Stop the camera after successful scan
+                    sendDataToBackend(result.text);
+                })
+                .catch(err => {
+                    console.error("QR code decoding failed:", err);
+                    resultElement.textContent = "Error scanning QR Code. Try again.";
+                });
+        }
+
+        function stopScan() {
+            codeReader.reset(); // Stop the camera stream
+            videoElement.style.display = 'none';
+            stopButton.style.display = 'none';
+            startButton.style.display = 'inline';
+        }
+
+        function sendDataToBackend(data) {
+            console.log("Sending data to backend:", data); // Log the data being sent
+            fetch('/api/qrcodescans/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ scanned_data: data }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("HTTP error " + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                resultElement.textContent += ' (Data successfully sent to backend)';
+            })
+            .catch((error) => {
+                console.error('Error sending data:', error);
+                resultElement.textContent += ' (Error sending data to backend)';
+            });
+        }
+
+    </script>
 </body>
 </html>
