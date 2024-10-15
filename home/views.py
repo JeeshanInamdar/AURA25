@@ -3,6 +3,10 @@ from home import check_qr, login
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from home.models import Profile
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth import logout, authenticate, login
 
 # Create your views here.
 
@@ -15,33 +19,30 @@ def host(request):
 def participant(request):
     return HttpResponse('<h1> This is Participants Home Page</h1>')
 
-def qr_validation(request):
-    return render(request,'qr_validation.html')
+# def qr_validation(request):
+#     return render(request,'qr_validation.html')
 
-def check_qr_code(request):
-    if request.method == 'POST':
-        code=request.POST['qr']
+# def check_qr_code(request):
+#     if request.method == 'POST':
+#         code=request.POST['qr']
 
-        result = check_qr.check(code)
+#         result = check_qr.check(code)
 
-        return HttpResponse(result)
-    return HttpResponse('Something went wrong...')
+#         return HttpResponse(result)
+#     return HttpResponse('Something went wrong...')
 
 
 def form(request):
-    return render(request,'form.html')
-
-def submit_form(request):
     if request.method == 'POST':
-        name=request.POST['name']
-        email=request.POST['email']
-        number=request.POST['phone']
-
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        profile = Profile(name = name, email = email, phone = phone, desc = desc, date = datetime.today())
+        profile.save()
         login.login(name,email,number)
-
-        return HttpResponse(f'Form has been submitted..........\nname: <h1>{name}</h1>')
-    return HttpResponse('Something went wrong.....')
-
+        messages.success(request, 'Submitted successfully!')
+        
+    return render(request,'form.html')
 
 def scan(request):
     return render(request,'scan.html')
@@ -54,12 +55,15 @@ def qr_code_scan(request):
             scanned_data = data.get('scanned_data')
 
             # Log or process the scanned data
-            print(f"Received QR Code data: {scanned_data}")
+            # print(f"Received QR Code data: {scanned_data}")
 
             # Here you can add logic to handle the scanned data, e.g., saving it to the database
+            result = check_qr.check(code)
+
+            return HttpResponse(result)
 
             # Respond with a success message
-            return JsonResponse({'status': 'success', 'scanned_data': scanned_data})
+            # return JsonResponse({'status': 'success', 'scanned_data': scanned_data})
 
         except json.JSONDecodeError:
             # Handle JSON decode error if the request body is not properly formatted
