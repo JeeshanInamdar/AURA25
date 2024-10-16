@@ -1,8 +1,9 @@
 from django.shortcuts import render,HttpResponse
-from home import check_qr, login
+from home import check_qr, Login
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from datetime import datetime
 from home.models import Profile
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -11,35 +12,22 @@ from django.contrib.auth import logout, authenticate, login
 # Create your views here.
 
 def home(request):
-    return HttpResponse('<h1>This is Home Page...</h1>')
+    return render(request, 'home.html')
 
 def host(request):
-    return HttpResponse('<h1>This home page is for Host</h1>')
+    return render(request, 'host.html')
 
 def participant(request):
-    return HttpResponse('<h1> This is Participants Home Page</h1>')
-
-# def qr_validation(request):
-#     return render(request,'qr_validation.html')
-
-# def check_qr_code(request):
-#     if request.method == 'POST':
-#         code=request.POST['qr']
-
-#         result = check_qr.check(code)
-
-#         return HttpResponse(result)
-#     return HttpResponse('Something went wrong...')
-
+    return render(request, 'participant.html')
 
 def form(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
-        profile = Profile(name = name, email = email, phone = phone, desc = desc, date = datetime.today())
+        profile = Profile(name = name, email = email, phone = phone, date = datetime.today())
         profile.save()
-        login.login(name,email,number)
+        Login.login(name,email,phone)
         messages.success(request, 'Submitted successfully!')
         
     return render(request,'form.html')
@@ -71,3 +59,20 @@ def qr_code_scan(request):
     else:
         # Return an error if the request method is not POST
         return JsonResponse({'status': 'error', 'message': 'Only POST method allowed'}, status=405)
+    
+def loginUser(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username = username, password = password)
+        if user is not None:
+            login(request, user)
+            return redirect('/')
+        else:
+            return render(request, 'login.html')
+    
+    return render(request, 'login.html')
+
+def logoutUser(request):
+    logout(request)
+    return redirect('/login')

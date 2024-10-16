@@ -1,80 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Scanner</title>
-    <script src="https://unpkg.com/@zxing/library@latest"></script>
-</head>
-<body>
-    <h1>QR Code Scanner</h1>
-    <button id="startButton">Start Camera</button>
-    <video id="preview" width="400" height="300" style="display: none;"></video>
-    <p id="result"></p>
+{% extends "base.html" %} {% load static %} {% block title %} QR Code Scanner {%
+endblock title %} {% block body %}
+<h1>QR Code Scanner</h1>
+<button id="startButton">Start Camera</button>
+<video id="preview" width="400" height="300" style="display: none"></video>
+<p id="result"></p>
 
-    <script>
-        // Initialize QR Code reader
-        const codeReader = new ZXing.BrowserMultiFormatReader();
-        const startButton = document.getElementById('startButton');
-        const videoElement = document.getElementById('preview');
-        const resultElement = document.getElementById('result');
+<script>
+  // Initialize QR Code reader
+  const codeReader = new ZXing.BrowserMultiFormatReader();
+  const startButton = document.getElementById("startButton");
+  const videoElement = document.getElementById("preview");
+  const resultElement = document.getElementById("result");
 
-        // Start scanning on button click
-        startButton.addEventListener('click', () => {
-            codeReader.decodeOnceFromVideoDevice(undefined, videoElement)
-                .then(result => {
-                    console.log(result);
-                    resultElement.textContent = `QR Code: ${result.text}`;
-                    videoElement.style.display = 'none';
-                    sendDataToBackend(result.text); // Send QR code to the backend
-                    qr_code_scan(result.text);  // Call your custom function
-                })
-                .catch(err => {
-                    console.error(err);
-                    resultElement.textContent = "Error scanning QR Code.";
-                });
+  // Start scanning on button click
+  startButton.addEventListener("click", () => {
+    codeReader
+      .decodeOnceFromVideoDevice(undefined, videoElement)
+      .then((result) => {
+        console.log(result);
+        resultElement.textContent = `QR Code: ${result.text}`;
+        videoElement.style.display = "none";
+        sendDataToBackend(result.text); // Send QR code to the backend
+        qr_code_scan(result.text); // Call your custom function
+      })
+      .catch((err) => {
+        console.error(err);
+        resultElement.textContent = "Error scanning QR Code.";
+      });
 
-            videoElement.style.display = 'block';
-        });
+    videoElement.style.display = "block";
+  });
 
-        // Function to send data to the backend
-        function sendDataToBackend(data) {
-            fetch('/qr_code_scan/', {  // Ensure the URL matches your Django route
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken()  // Add CSRF token to the request
-                },
-                body: JSON.stringify({ scanned_data: data }),  // Sending QR code as JSON
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        }
+  // Function to send data to the backend
+  function sendDataToBackend(data) {
+    fetch("/qr_code_scan/", {
+      // Ensure the URL matches your Django route
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(), // Add CSRF token to the request
+      },
+      body: JSON.stringify({ scanned_data: data }), // Sending QR code as JSON
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
 
-        // Function to get CSRF token from cookies
-        function getCSRFToken() {
-            let cookieValue = null;
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith('csrftoken=')) {
-                    cookieValue = cookie.substring('csrftoken='.length);
-                    break;
-                }
-            }
-            return cookieValue;
-        }
+  // Function to get CSRF token from cookies
+  function getCSRFToken() {
+    let cookieValue = null;
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith("csrftoken=")) {
+        cookieValue = cookie.substring("csrftoken=".length);
+        break;
+      }
+    }
+    return cookieValue;
+  }
 
-        // Define the qr_code_scan function (this is where you process the QR code)
-        function qr_code_scan(scannedQRCode) {
-            console.log("QR Code received in qr_code_scan function: " + scannedQRCode);
-            // Add your logic to process the QR code here
-        }
-    </script>
-</body>
-</html>
+  // Define the qr_code_scan function (this is where you process the QR code)
+  function qr_code_scan(scannedQRCode) {
+    console.log("QR Code received in qr_code_scan function: " + scannedQRCode);
+    // Add your logic to process the QR code here
+  }
+</script>
+{% endblock body %}

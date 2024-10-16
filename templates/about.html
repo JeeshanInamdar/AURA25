@@ -1,12 +1,6 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block head %}
-    <title>ACM</title>
-    <link rel="stylesheet" href="{% static 'about.css'%}">
-    
-{% endblock head %}
-{% block body %}
-<p>
-    about page
-</p>
+{% extends 'base.html' %} {% load static %} {% block title%} About {% endblock
+title%} {% block head %}
+<link rel="stylesheet" href="{% static 'about.css'%}" />
+{% endblock head %} {% block body %}
+<p>about page</p>
 {% endblock body %}
