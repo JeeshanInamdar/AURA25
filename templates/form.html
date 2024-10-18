@@ -1,5 +1,4 @@
-{% extends "base.html" %} {% load static %} {% block title %} Submit Form {%
-endblock title %} {% block head %}
+{% extends "base.html" %} {% load static %} {% block title %} Submit Form {% endblock title %} {% block head %}
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -11,6 +10,7 @@ endblock title %} {% block head %}
     align-items: center;
     height: 100vh;
   }
+
   .form-container {
     background-color: #fff;
     padding: 20px;
@@ -19,22 +19,27 @@ endblock title %} {% block head %}
     max-width: 400px;
     width: 100%;
   }
+
   h1 {
     text-align: center;
   }
+
   form {
     display: flex;
     flex-direction: column;
   }
+
   label {
     margin-top: 10px;
   }
+
   input {
     padding: 10px;
     margin-top: 5px;
     border-radius: 4px;
     border: 1px solid #ccc;
   }
+
   button {
     margin-top: 20px;
     padding: 10px;
@@ -44,6 +49,7 @@ endblock title %} {% block head %}
     border-radius: 4px;
     cursor: pointer;
   }
+
   button:hover {
     background-color: #218838;
   }
@@ -54,31 +60,13 @@ endblock title %} {% block head %}
   <form method="POST" action="/form/">
     {% csrf_token %}
     <label for="name">Name:</label>
-    <input
-      type="text"
-      id="name"
-      name="name"
-      placeholder="Enter your name"
-      required
-    />
+    <input type="text" id="name" name="name" placeholder="Enter your name" required />
 
     <label for="email">Email:</label>
-    <input
-      type="email"
-      id="email"
-      name="email"
-      placeholder="Enter your email"
-      required
-    />
+    <input type="email" id="email" name="email" placeholder="Enter your email" required />
 
     <label for="phone">Phone Number:</label>
-    <input
-      type="phone"
-      id="phone"
-      name="phone"
-      placeholder="Enter your phone number"
-      required
-    />
+    <input type="phone" id="phone" name="phone" placeholder="Enter your phone number" required />
 
     <button type="submit">Submit</button>
   </form>

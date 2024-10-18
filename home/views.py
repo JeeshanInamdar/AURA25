@@ -42,16 +42,10 @@ def qr_code_scan(request):
             data = json.loads(request.body)
             scanned_data = data.get('scanned_data')
 
-            # Log or process the scanned data
-            # print(f"Received QR Code data: {scanned_data}")
-
             # Here you can add logic to handle the scanned data, e.g., saving it to the database
             result = check_qr.check(code)
 
             return HttpResponse(result)
-
-            # Respond with a success message
-            # return JsonResponse({'status': 'success', 'scanned_data': scanned_data})
 
         except json.JSONDecodeError:
             # Handle JSON decode error if the request body is not properly formatted
